@@ -14,9 +14,11 @@ namespace PhotoStock.Controllers
     public class TextController : ControllerBase
     {
         private IBaseRepository<Text> Texts { get; set; }
-        public TextController(IBaseRepository<Text> texts)
+        private IBaseRepository<Author> Authors { get; set; }
+        public TextController(IBaseRepository<Text> texts, IBaseRepository<Author> authors)
         {
             Texts = texts;
+            Authors = authors;
         }
 
         [HttpGet]
@@ -42,8 +44,29 @@ namespace PhotoStock.Controllers
         }
 
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult Post(TextDto textDto, Guid authorId)
         {
+            if(textDto != null && Authors.Get(authorId)!=null)
+            {
+                var newText = new Text()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = textDto.Name,
+                    Content = textDto.Content,
+                    Size = textDto.Size,
+                    CreationDate = DateTime.Now,
+                    AuthorId = authorId,
+                    Price = textDto.Price,
+                    CountOfPurchases = textDto.CountOfPurchases,
+                    Rating = textDto.Rating
+                };
+                Texts.Create(newText);
+                return Ok(newText);
+            }
+            else
+            {
+                return BadRequest();
+            }
 
         }
     }
