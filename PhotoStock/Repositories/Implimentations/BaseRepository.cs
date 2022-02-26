@@ -5,13 +5,12 @@ using PhotoStock.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using PhotoStock.Models;
 
 namespace PhotoStock.Repositories.Implimentations
 {
-    public abstract class BaseRepository<TDbModel> : IBaseRepository<TDbModel> where TDbModel : BaseModel
+    public class BaseRepository<TDbModel> : IBaseRepository<TDbModel> where TDbModel : BaseModel
     {
-        public PhotoStockContext Context { get; set; }
+        private PhotoStockContext Context { get; set; }
         public BaseRepository(PhotoStockContext context)
         {
             Context = context;
@@ -33,8 +32,7 @@ namespace PhotoStock.Repositories.Implimentations
 
         public List<TDbModel> GetAll()
         {
-            return Context.Set<TDbModel>()
-                .ToList();
+            return Context.Set<TDbModel>().ToList();
         }
 
         public TDbModel Update(TDbModel model)

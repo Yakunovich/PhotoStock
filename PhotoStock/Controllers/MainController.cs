@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PhotoStock.Data.Models;
-using PhotoStock.Repositories;
 using PhotoStock.Repositories.Interfaces;
 using System.Collections;
 
@@ -14,21 +13,25 @@ namespace PhotoStock.Controllers
     public class MainController : ControllerBase
     {
         private readonly ILoggerManager _logger;
-        private IRepositoryWrapper _repositoryWrapper;
-        public MainController(IRepositoryWrapper repositoryWrapper, ILoggerManager logger)
+        private IBaseRepository<Photo> Photos { get; set; }
+        private IBaseRepository<Text> Texts { get; set; }
+        private IBaseRepository<Author> Authors { get; set; }
+
+        public MainController(IBaseRepository<Photo> photos, IBaseRepository<Text> texts, IBaseRepository<Author> authors, ILoggerManager logger)
         {
+            Photos = photos;
+            Authors = authors;
+            Texts = texts;
             _logger = logger;
-            _repositoryWrapper = repositoryWrapper;
         }
 
         [HttpGet]
         public ActionResult<ArrayList> Get()
         {
             ArrayList entities = new ArrayList();
-
-            entities.AddRange(_repositoryWrapper.AuthorRepository.GetAll());
-            entities.AddRange(_repositoryWrapper.PhotoRepository.GetAll());
-            entities.AddRange(_repositoryWrapper.TextRepository.GetAll());
+            entities.AddRange(Photos.GetAll());
+            entities.AddRange(Texts.GetAll());
+            entities.AddRange(Authors.GetAll());
 
             _logger.LogInfo("Fetching all entities from the storage");
 

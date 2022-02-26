@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhotoStock.Data.Contracts;
 using PhotoStock.Data.Models;
-using PhotoStock.Models;
-using PhotoStock.Repositories;
 using PhotoStock.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -20,22 +18,23 @@ namespace PhotoStock.Controllers
     public class PhotoController : ControllerBase
     {
         private readonly ILoggerManager _logger;
-        private IRepositoryWrapper _repositoryWrapper;
+        private IBaseRepository<Photo> Photos { get; set; }
+        private IBaseRepository<RatingValue> RatingValues { get; set; }
 
-        public PhotoController(ILoggerManager logger, IRepositoryWrapper repositoryWrapper)
+        public PhotoController(IBaseRepository<Photo> photos, IBaseRepository<RatingValue> ratingValues, ILoggerManager logger)
         {
+            Photos = photos;
+            RatingValues = ratingValues;
             _logger = logger;
-            _repositoryWrapper = repositoryWrapper;
         }
 
         [HttpGet]
-        public IEnumerable<PhotoDto> Get([FromQuery] ModelParameters modelParameters)
+        public IEnumerable<PhotoDto> Get()
         {
-            var photos = from p in _repositoryWrapper.PhotoRepository.GetAll(modelParameters)// Photos.GetAll(modelParameters)
+            var photos = from p in Photos.GetAll()
                          select PhotoToDto(p);
 
             _logger.LogInfo("Fetching all the Photos from the storage");
-            
 
             return photos;
         }
@@ -44,9 +43,9 @@ namespace PhotoStock.Controllers
         [HttpGet("{id}")]
         public ActionResult<PhotoDto> Get(Guid id)
         {
-            var photo = _repositoryWrapper.PhotoRepository.Get(id);//Photos.Get(id);
+            var photo = Photos.Get(id);
 
-            if (photo == null)
+            if(photo == null)
             {
                 _logger.LogError($"Failed to fetch the Photo with id '{id}' from the storage");
 
@@ -62,8 +61,8 @@ namespace PhotoStock.Controllers
         [HttpPut]
         public ActionResult Put(Guid id, PhotoDto photoDto)
         {
-            var photo = _repositoryWrapper.PhotoRepository.Get(id);
-            if (photo == null)
+            var photo = Photos.Get(id);
+            if(photo == null)
             {
                 _logger.LogInfo($"Failed to fetch the Photo with id '{id}' from the storage");
 
@@ -79,7 +78,7 @@ namespace PhotoStock.Controllers
 
             try
             {
-                _repositoryWrapper.PhotoRepository.Update(photo);
+                Photos.Update(photo);
 
                 _logger.LogInfo($"The Photo with id '{id}' updated successfully");
             }
@@ -96,30 +95,30 @@ namespace PhotoStock.Controllers
         [HttpPost("Rate")]
         public ActionResult Rate(Guid id, int ratingValue)
         {
-            var photo = _repositoryWrapper.PhotoRepository.Get(id);
+            var photo = Photos.Get(id);
 
-            if (photo == null)
+            if(photo == null)
             {
                 _logger.LogError($"Failed to fetch the Photo with id '{id}' from the storage");
 
                 return NotFound();
             }
 
-            _repositoryWrapper.RatingValueRepository.Create(
-                new RatingValue()
-                {
+            RatingValues.Create(
+                new RatingValue() 
+                { 
                     Id = Guid.NewGuid(),
                     RatingId = photo.RatingId,
-                    Value = ratingValue
+                    Value = ratingValue 
                 });
 
             _logger.LogInfo($"The Photo with id '{id}' created successfully");
 
             return Ok();
-
+           
         }
         private bool PhotoExists(Guid id) =>
-                    _repositoryWrapper.PhotoRepository.Get(id) != null;
+                    Photos.Get(id) != null;
         private static PhotoDto PhotoToDto(Photo photo) =>
             new PhotoDto()
             {
