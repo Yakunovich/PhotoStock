@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using LoggerService;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using PhotoStock.Data.Models;
 using PhotoStock.Repositories.Interfaces;
 using System.Collections;
@@ -10,14 +12,16 @@ namespace PhotoStock.Controllers
     [ApiController]
     public class MainController : ControllerBase
     {
+        private readonly ILoggerManager _logger;
         private IBaseRepository<Photo> Photos { get; set; }
         private IBaseRepository<Text> Texts { get; set; }
         private IBaseRepository<Author> Authors { get; set; }
-        public MainController(IBaseRepository<Photo> photos, IBaseRepository<Text> texts, IBaseRepository<Author> authors)
+        public MainController(IBaseRepository<Photo> photos, IBaseRepository<Text> texts, IBaseRepository<Author> authors, ILoggerManager logger)
         {
             Photos = photos;
             Authors = authors;
             Texts = texts;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -27,7 +31,9 @@ namespace PhotoStock.Controllers
             entities.AddRange(Photos.GetAll());
             entities.AddRange(Texts.GetAll());
             entities.AddRange(Authors.GetAll());
-            
+
+            _logger.LogError("Here is error message");
+
             return entities;
         }
     }
