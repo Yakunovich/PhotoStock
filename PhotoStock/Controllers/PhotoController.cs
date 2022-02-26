@@ -29,15 +29,19 @@ namespace PhotoStock.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<PhotoDto> Get([FromQuery] ModelParameters modelParameters)
+        public ActionResult<IEnumerable<PhotoDto>> Get([FromQuery] ModelParameters modelParameters)
         {
+            if(modelParameters.PageNumber < 1 || modelParameters.PageSize < 1)
+            {
+                return BadRequest();
+            }
             var photos = from p in _repositoryWrapper.PhotoRepository.GetAll(modelParameters)// Photos.GetAll(modelParameters)
                          select PhotoToDto(p);
 
             _logger.LogInfo("Fetching all the Photos from the storage");
             
 
-            return photos;
+            return Ok(photos);
         }
 
 
