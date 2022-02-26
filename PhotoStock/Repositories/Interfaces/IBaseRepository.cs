@@ -1,4 +1,5 @@
 ﻿using PhotoStock.Data.Models;
+using PhotoStock.Models;
 using System;
 using System.Collections.Generic;
 

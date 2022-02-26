@@ -6,6 +6,7 @@ using PhotoStock.Services;
 using System.Linq;
 using PhotoStock.Data.Contracts;
 using LoggerService;
+using PhotoStock.Repositories;
 
 namespace PhotoStock.Controllers
 {
@@ -14,19 +15,17 @@ namespace PhotoStock.Controllers
     public class TextController : ControllerBase
     {
         private readonly ILoggerManager _logger;
-        private IBaseRepository<Text> Texts { get; set; }
-        private IBaseRepository<Author> Authors { get; set; }
-        public TextController(IBaseRepository<Text> texts, IBaseRepository<Author> authors, ILoggerManager logger)
+        private IRepositoryWrapper _repositoryWrapper;
+        public TextController(IRepositoryWrapper repositoryWrapper, ILoggerManager logger)
         {
-            Texts = texts;
-            Authors = authors;
+            _repositoryWrapper = repositoryWrapper;
             _logger = logger;
         }
 
         [HttpGet]
         public string Get()
         {
-            var texts = from t in Texts.GetAll()
+            var texts = from t in _repositoryWrapper.TextRepository.GetAll()
                          select TextToDto(t);
 
             var csv = DataConverter.ConvertToCvs(texts);
@@ -39,7 +38,7 @@ namespace PhotoStock.Controllers
         [HttpPost]
         public ActionResult Post(Guid authorId, TextDto textDto)
         {
-            if(Authors.Get(authorId) == null)
+            if(_repositoryWrapper.AuthorRepository.Get(authorId) == null)
             {
                 _logger.LogError($"Failed to fetch the Author with id '{authorId}'");
 
@@ -59,7 +58,7 @@ namespace PhotoStock.Controllers
                 Rating = new Rating()
             };
 
-            Texts.Create(text);
+            _repositoryWrapper.TextRepository.Create(text);
 
             _logger.LogInfo($"The Text with id '{text.Id}' created successfully");
 
