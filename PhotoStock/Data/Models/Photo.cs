@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace PhotoStock.Data.Models
 {
@@ -9,9 +10,10 @@ namespace PhotoStock.Data.Models
         public string Size { get; set; }
         public DateTime CreationDate { get; set; }
         public Guid AuthorId { get; set; }
+        public Guid RatingId { get; set; }
         public decimal Price { get; set; }
         public int CountOfPurchases { get; set; }
-        public int Rating { get; set; }
+        public virtual Rating Rating { get; set; }
         public virtual Author Author { get; set; }
     }
 }

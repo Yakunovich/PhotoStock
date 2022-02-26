@@ -24,50 +24,53 @@ namespace PhotoStock.Controllers
         [HttpGet]
         public string Get()
         {
-            var AllTexts = Texts.GetAll();
-            
-            var photos = from t in Texts.GetAll()
-                         select new TextDto()
-                         {
-                             Name = t.Name,
-                             Content = t.Content,
-                             Size = t.Size,
-                             CreationDate = t.CreationDate,
-                             AuthorName = t.Author.Name,
-                             AuthorNickname = t.Author.Nickname,
-                             Price = t.Price,
-                             CountOfPurchases = t.CountOfPurchases,
-                             Rating = t.Rating
-                         };
-            var csv = DataConverter.ConvertToCvs(photos);
+            var texts = from t in Texts.GetAll()
+                         select TextToDto(t);
+            var csv = DataConverter.ConvertToCvs(texts);
+
             return csv;
         }
 
         [HttpPost]
-        public ActionResult Post(TextDto textDto, Guid authorId)
+        public ActionResult Post(Guid authorId, TextDto textDto)
         {
-            if(textDto != null && Authors.Get(authorId)!=null)
+            if(Authors.Get(authorId) == null)
             {
-                var newText = new Text()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = textDto.Name,
-                    Content = textDto.Content,
-                    Size = textDto.Size,
-                    CreationDate = DateTime.Now,
-                    AuthorId = authorId,
-                    Price = textDto.Price,
-                    CountOfPurchases = textDto.CountOfPurchases,
-                    Rating = textDto.Rating
-                };
-                Texts.Create(newText);
-                return Ok(newText);
+                return NotFound();
             }
-            else
+            var text = new Text()
             {
-                return BadRequest();
-            }
+                Id = Guid.NewGuid(),
+                Name = textDto.Name,
+                Content = textDto.Content,
+                Size = textDto.Content.Length,
+                CreationDate = DateTime.Now,
+                AuthorId = authorId,
+                Price = textDto.Price,
+                CountOfPurchases = textDto.CountOfPurchases,
+                Rating = new Rating()
+            };
+
+            Texts.Create(text);
+
+            return CreatedAtAction(
+                nameof(Get),
+                new { id = text.Id },
+                TextToDto(text));
 
         }
+        private static TextDto TextToDto(Text text) =>
+            new TextDto()
+            {
+                Name = text.Name,
+                Content = text.Content,
+                Size = text.Size,
+                CreationDate = text.CreationDate,
+                AuthorName = text.Author.Name,
+                AuthorNickname = text.Author.Nickname,
+                Price = text.Price,
+                CountOfPurchases = text.CountOfPurchases,
+                Rating = text.Rating.AvarageRating()
+            };
     }
 }

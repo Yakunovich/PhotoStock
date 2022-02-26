@@ -2,7 +2,7 @@
 
 namespace PhotoStock.Data.Contracts
 {
-    public record PhotoDto 
+    public class PhotoDto 
     {
         public string Name { get; set; }
         public string ContentUri { get; set; }
@@ -12,6 +12,6 @@ namespace PhotoStock.Data.Contracts
         public string AuthorNickname { get; set; }
         public decimal Price { get; set; }
         public int CountOfPurchases { get; set; }
-        public int Rating { get; set; }
+        public double Rating { get; set; }
     }
 }

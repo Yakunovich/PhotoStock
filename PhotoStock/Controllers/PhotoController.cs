@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PhotoStock.Data.Contracts;
 using PhotoStock.Data.Models;
 using PhotoStock.Repositories.Interfaces;
@@ -16,70 +17,98 @@ namespace PhotoStock.Controllers
     public class PhotoController : ControllerBase
     {
         private IBaseRepository<Photo> Photos { get; set; }
-
-        public PhotoController(IBaseRepository<Photo> photos)
+        private IBaseRepository<RatingValue> RatingValues { get; set; }
+        public PhotoController(IBaseRepository<Photo> photos, IBaseRepository<RatingValue> ratingValues)
         {
             Photos = photos;
+            RatingValues = ratingValues;
         }
 
         [HttpGet]
         public IEnumerable<PhotoDto> Get()
         {
             var photos = from p in Photos.GetAll()
-                         select new PhotoDto()
-                         {
-                             Name = p.Name,
-                             ContentUri = p.ContentUri,
-                             Size = p.Size,
-                             CreationDate = p.CreationDate,
-                             AuthorName = p.Author.Name,
-                             AuthorNickname = p.Author.Nickname,
-                             Price = p.Price,
-                             CountOfPurchases = p.CountOfPurchases,
-                             Rating = p.Rating
-                         };
-
+                         select PhotoToDto(p);
             return photos;
         }
+
 
         [HttpGet("{id}")]
         public ActionResult<PhotoDto> Get(Guid id)
         {
-            var p = Photos.Get(id);
-            var photo =  new PhotoDto()
-                         {
-                             Name = p.Name,
-                             ContentUri = p.ContentUri,
-                             Size = p.Size,
-                             CreationDate = p.CreationDate,
-                             AuthorName = p.Author.Name,
-                             AuthorNickname = p.Author.Nickname,
-                             Price = p.Price,
-                             CountOfPurchases = p.CountOfPurchases,
-                             Rating = p.Rating
-                         };
+            var photo = Photos.Get(id);
 
-            return photo;
+            if(photo == null)
+            {
+                return NotFound();
+            }
+
+            return PhotoToDto(photo);
         }
 
         [HttpPut]
-        public string Put(Photo photo)
+        public ActionResult Put(Guid photoId, PhotoDto photoDto)
         {
-            bool success = true;
+            var photo = Photos.Get(photoId);
+            if(photo == null)
+            {
+                return NotFound();
+            }
+
+            photo.Name = photoDto.Name;
+            photo.ContentUri = photoDto.ContentUri;
+            photo.Size = photoDto.Size;
+            photo.ContentUri = photoDto.ContentUri;
+            photo.Price = photoDto.Price;
+            photo.CountOfPurchases = photoDto.CountOfPurchases;
+
             try
             {
-               if (photo != null)
-                   Photos.Update(photo);
-               else success = false;
+                Photos.Update(photo);
             }
-            catch (Exception e)
+            catch (DbUpdateConcurrencyException) when (!PhotoExists(photoId))
             {
-                success = false;
-                return e.Message;
+                return NotFound();
             }
-            return success.ToString() ;
+
+            return NoContent();
         }
 
+        [HttpPost("Rate")]
+        public ActionResult Rate(Guid photoId, int ratingValue)
+        {
+            var photo = Photos.Get(photoId);
 
+            if(photo == null)
+            {
+                return NotFound();
+            }
+
+            RatingValues.Create(
+                new RatingValue() 
+                { 
+                    Id = Guid.NewGuid(),
+                    RatingId = photo.RatingId,
+                    Value = ratingValue 
+                });
+
+            return Ok();
+           
+        }
+        private bool PhotoExists(Guid id) =>
+                    Photos.Get(id) != null;
+        private static PhotoDto PhotoToDto(Photo photo) =>
+            new PhotoDto()
+            {
+                Name = photo.Name,
+                ContentUri = photo.ContentUri,
+                Size = photo.Size,
+                CreationDate = photo.CreationDate,
+                AuthorName = photo.Author.Name,
+                AuthorNickname = photo.Author.Nickname,
+                Price = photo.Price,
+                CountOfPurchases = photo.CountOfPurchases,
+                Rating = photo.Rating.AvarageRating()
+            };
     }
 }

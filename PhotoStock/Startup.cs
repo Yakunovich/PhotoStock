@@ -16,6 +16,7 @@ using PhotoStock.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace PhotoStock
@@ -29,16 +30,15 @@ namespace PhotoStock
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<PhotoStockContext>(options => options
                 .UseLazyLoadingProxies()
-                //.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.DetachedLazyLoadingWarning))
                 .EnableSensitiveDataLogging()
                 .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(x => x
+                .JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve); 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PhotoStock", Version = "v1" });
@@ -46,9 +46,10 @@ namespace PhotoStock
             services.AddTransient<IBaseRepository<Author>, BaseRepository<Author>>();
             services.AddTransient<IBaseRepository<Photo>, BaseRepository<Photo>>();
             services.AddTransient<IBaseRepository<Text>, BaseRepository<Text>>();
+            services.AddTransient<IBaseRepository<Rating>, BaseRepository<Rating>>();
+            services.AddTransient<IBaseRepository<RatingValue>, BaseRepository<RatingValue>>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
