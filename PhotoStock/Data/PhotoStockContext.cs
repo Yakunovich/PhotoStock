@@ -34,6 +34,8 @@ namespace PhotoStock.Data
                 new Rating { Id =  Guid.Parse("1dfa80cc-8337-444f-8bf6-fbea906975bd"), RatingValues = new List<RatingValue>(){ } },
                 new Rating { Id =  Guid.Parse("2dfa80cc-8337-444f-8bf6-fbea906975bd"), RatingValues = new List<RatingValue>(){ } },
                 new Rating { Id =  Guid.Parse("3dfa80cc-8337-444f-8bf6-fbea906975bd"), RatingValues = new List<RatingValue>(){ } },
+                new Rating { Id =  Guid.Parse("4dfa80cc-8337-444f-8bf6-fbea906975bd"), RatingValues = new List<RatingValue>(){ } },
+
                 });
 
             modelBuilder.Entity<RatingValue>().HasData(
@@ -44,14 +46,16 @@ namespace PhotoStock.Data
                 new RatingValue { Id = Guid.NewGuid(), Value = 5, RatingId = Guid.Parse("2dfa80cc-8337-444f-8bf6-fbea906975bd") },
                 new RatingValue { Id = Guid.NewGuid(), Value = 4, RatingId = Guid.Parse("2dfa80cc-8337-444f-8bf6-fbea906975bd") },
                 new RatingValue { Id = Guid.NewGuid(), Value = 5, RatingId = Guid.Parse("3dfa80cc-8337-444f-8bf6-fbea906975bd") },
-                new RatingValue { Id = Guid.NewGuid(), Value = 4, RatingId = Guid.Parse("3dfa80cc-8337-444f-8bf6-fbea906975bd") }
+                new RatingValue { Id = Guid.NewGuid(), Value = 4, RatingId = Guid.Parse("3dfa80cc-8337-444f-8bf6-fbea906975bd") },
+                new RatingValue { Id = Guid.NewGuid(), Value = 5, RatingId = Guid.Parse("4dfa80cc-8337-444f-8bf6-fbea906975bd") },
+                new RatingValue { Id = Guid.NewGuid(), Value = 4, RatingId = Guid.Parse("4dfa80cc-8337-444f-8bf6-fbea906975bd") }
                 });
 
             modelBuilder.Entity<Photo>().HasData(
                 new Photo[]
                 {
                 new Photo { Id=Guid.Parse("2dfa80cc-8337-444f-8bf6-fbea906975bb"),RatingId = Guid.Parse("1dfa80cc-8337-444f-8bf6-fbea906975bd"),Name="Photo by Alexey", Size = "16x16", CreationDate = System.DateTime.Today, AuthorId = Guid.Parse("2dfa80cd-8337-444f-8bf6-fbea906975bb")  ,Price = 10, CountOfPurchases = 10, ContentUri = "." },
-               //new Photo { Id=Guid.Parse("2dfa80cc-8337-444f-8bf6-fbea906975bd"),Name="Photo by Ivan", Size = "16x16", CreationDate = System.DateTime.Today, AuthorId = Guid.Parse("2dfa80cd-8337-444f-8bf6-fbea906975bc")  ,Price = 10, CountOfPurchases = 10, ContentUri = "." },
+                new Photo { Id=Guid.Parse("2bfa80cc-8337-444f-8bf6-fbea906975bb"),RatingId = Guid.Parse("4dfa80cc-8337-444f-8bf6-fbea906975bd"),Name="Photo by Alexandr", Size = "16x16", CreationDate = System.DateTime.Today, AuthorId = Guid.Parse("2dfa80cd-8337-444f-8bf6-fbea906975bd")  ,Price = 10, CountOfPurchases = 10, ContentUri = "." },
                 });
 
             modelBuilder.Entity<Text>().HasData(

@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using LoggerService;
+using PhotoStock.Repositories;
 
 namespace PhotoStock
 {
@@ -47,12 +48,9 @@ namespace PhotoStock
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PhotoStock", Version = "v1" });
             });
+            services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
             services.AddSingleton<ILoggerManager, LoggerManager>();
-            services.AddTransient<IBaseRepository<Author>, BaseRepository<Author>>();
-            services.AddTransient<IBaseRepository<Photo>, BaseRepository<Photo>>();
-            services.AddTransient<IBaseRepository<Text>, BaseRepository<Text>>();
-            services.AddTransient<IBaseRepository<Rating>, BaseRepository<Rating>>();
-            services.AddTransient<IBaseRepository<RatingValue>, BaseRepository<RatingValue>>();
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
