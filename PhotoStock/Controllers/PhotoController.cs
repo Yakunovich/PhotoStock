@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LoggerService;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhotoStock.Data.Contracts;
 using PhotoStock.Data.Models;
@@ -16,12 +17,15 @@ namespace PhotoStock.Controllers
     [ApiController]
     public class PhotoController : ControllerBase
     {
+        private readonly ILoggerManager _logger;
         private IBaseRepository<Photo> Photos { get; set; }
         private IBaseRepository<RatingValue> RatingValues { get; set; }
-        public PhotoController(IBaseRepository<Photo> photos, IBaseRepository<RatingValue> ratingValues)
+
+        public PhotoController(IBaseRepository<Photo> photos, IBaseRepository<RatingValue> ratingValues, ILoggerManager logger)
         {
             Photos = photos;
             RatingValues = ratingValues;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -29,6 +33,9 @@ namespace PhotoStock.Controllers
         {
             var photos = from p in Photos.GetAll()
                          select PhotoToDto(p);
+
+            _logger.LogInfo("Fetching all the Photos from the storage");
+
             return photos;
         }
 
@@ -40,18 +47,25 @@ namespace PhotoStock.Controllers
 
             if(photo == null)
             {
+                _logger.LogError($"Failed to fetch the Photo with id '{id}' from the storage");
+
                 return NotFound();
             }
+
+            _logger.LogInfo($"Fetching the Photo with id '{id}' from the storage");
+
 
             return PhotoToDto(photo);
         }
 
         [HttpPut]
-        public ActionResult Put(Guid photoId, PhotoDto photoDto)
+        public ActionResult Put(Guid id, PhotoDto photoDto)
         {
-            var photo = Photos.Get(photoId);
+            var photo = Photos.Get(id);
             if(photo == null)
             {
+                _logger.LogInfo($"Failed to fetch the Photo with id '{id}' from the storage");
+
                 return NotFound();
             }
 
@@ -65,9 +79,13 @@ namespace PhotoStock.Controllers
             try
             {
                 Photos.Update(photo);
+
+                _logger.LogInfo($"The Photo with id '{id}' updated successfully");
             }
-            catch (DbUpdateConcurrencyException) when (!PhotoExists(photoId))
+            catch (DbUpdateConcurrencyException) when (!PhotoExists(id))
             {
+                _logger.LogError($"Failed to update the Photo with id '{id}' from the storage");
+
                 return NotFound();
             }
 
@@ -75,12 +93,14 @@ namespace PhotoStock.Controllers
         }
 
         [HttpPost("Rate")]
-        public ActionResult Rate(Guid photoId, int ratingValue)
+        public ActionResult Rate(Guid id, int ratingValue)
         {
-            var photo = Photos.Get(photoId);
+            var photo = Photos.Get(id);
 
             if(photo == null)
             {
+                _logger.LogError($"Failed to fetch the Photo with id '{id}' from the storage");
+
                 return NotFound();
             }
 
@@ -91,6 +111,8 @@ namespace PhotoStock.Controllers
                     RatingId = photo.RatingId,
                     Value = ratingValue 
                 });
+
+            _logger.LogInfo($"The Photo with id '{id}' created successfully");
 
             return Ok();
            

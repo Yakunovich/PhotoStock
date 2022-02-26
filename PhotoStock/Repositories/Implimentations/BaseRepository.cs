@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PhotoStock.Data.Models;
-using PhotoStock.Database;
+using PhotoStock.Data;
 using PhotoStock.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;

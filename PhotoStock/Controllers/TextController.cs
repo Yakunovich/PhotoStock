@@ -3,9 +3,9 @@ using PhotoStock.Data.Models;
 using PhotoStock.Repositories.Interfaces;
 using System;
 using PhotoStock.Services;
-using System.Collections.Generic;
 using System.Linq;
 using PhotoStock.Data.Contracts;
+using LoggerService;
 
 namespace PhotoStock.Controllers
 {
@@ -13,12 +13,14 @@ namespace PhotoStock.Controllers
     [ApiController]
     public class TextController : ControllerBase
     {
+        private readonly ILoggerManager _logger;
         private IBaseRepository<Text> Texts { get; set; }
         private IBaseRepository<Author> Authors { get; set; }
-        public TextController(IBaseRepository<Text> texts, IBaseRepository<Author> authors)
+        public TextController(IBaseRepository<Text> texts, IBaseRepository<Author> authors, ILoggerManager logger)
         {
             Texts = texts;
             Authors = authors;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -26,7 +28,10 @@ namespace PhotoStock.Controllers
         {
             var texts = from t in Texts.GetAll()
                          select TextToDto(t);
+
             var csv = DataConverter.ConvertToCvs(texts);
+
+            _logger.LogInfo($"Fetching all the Texts from storage");
 
             return csv;
         }
@@ -36,8 +41,11 @@ namespace PhotoStock.Controllers
         {
             if(Authors.Get(authorId) == null)
             {
+                _logger.LogError($"Failed to fetch the Author with id '{authorId}'");
+
                 return NotFound();
             }
+
             var text = new Text()
             {
                 Id = Guid.NewGuid(),
@@ -52,6 +60,8 @@ namespace PhotoStock.Controllers
             };
 
             Texts.Create(text);
+
+            _logger.LogInfo($"The Text with id '{text.Id}' created successfully");
 
             return CreatedAtAction(
                 nameof(Get),

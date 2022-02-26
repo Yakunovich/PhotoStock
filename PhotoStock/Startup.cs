@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog;
 using PhotoStock.Data.Models;
-using PhotoStock.Database;
+using PhotoStock.Data;
 using PhotoStock.Repositories.Implimentations;
 using PhotoStock.Repositories.Interfaces;
 using System;

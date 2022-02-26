@@ -1,10 +1,9 @@
-﻿using Pomelo.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PhotoStock.Data.Models;
 using System;
 using System.Collections.Generic;
 
-namespace PhotoStock.Database
+namespace PhotoStock.Data
 {
     public class PhotoStockContext : DbContext
     {
@@ -52,7 +51,7 @@ namespace PhotoStock.Database
                 new Photo[]
                 {
                 new Photo { Id=Guid.Parse("2dfa80cc-8337-444f-8bf6-fbea906975bb"),RatingId = Guid.Parse("1dfa80cc-8337-444f-8bf6-fbea906975bd"),Name="Photo by Alexey", Size = "16x16", CreationDate = System.DateTime.Today, AuthorId = Guid.Parse("2dfa80cd-8337-444f-8bf6-fbea906975bb")  ,Price = 10, CountOfPurchases = 10, ContentUri = "." },
-               // new Photo { Id=Guid.Parse("2dfa80cc-8337-444f-8bf6-fbea906975bd"),Name="Photo by Ivan", Size = "16x16", CreationDate = System.DateTime.Today, AuthorId = Guid.Parse("2dfa80cd-8337-444f-8bf6-fbea906975bc")  ,Price = 10, CountOfPurchases = 10, ContentUri = "." },
+               //new Photo { Id=Guid.Parse("2dfa80cc-8337-444f-8bf6-fbea906975bd"),Name="Photo by Ivan", Size = "16x16", CreationDate = System.DateTime.Today, AuthorId = Guid.Parse("2dfa80cd-8337-444f-8bf6-fbea906975bc")  ,Price = 10, CountOfPurchases = 10, ContentUri = "." },
                 });
 
             modelBuilder.Entity<Text>().HasData(

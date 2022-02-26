@@ -16,6 +16,7 @@ namespace PhotoStock.Controllers
         private IBaseRepository<Photo> Photos { get; set; }
         private IBaseRepository<Text> Texts { get; set; }
         private IBaseRepository<Author> Authors { get; set; }
+
         public MainController(IBaseRepository<Photo> photos, IBaseRepository<Text> texts, IBaseRepository<Author> authors, ILoggerManager logger)
         {
             Photos = photos;
@@ -32,7 +33,7 @@ namespace PhotoStock.Controllers
             entities.AddRange(Texts.GetAll());
             entities.AddRange(Authors.GetAll());
 
-            _logger.LogError("Here is error message");
+            _logger.LogInfo("Fetching all entities from the storage");
 
             return entities;
         }
