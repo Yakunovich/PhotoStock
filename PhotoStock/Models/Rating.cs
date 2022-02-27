@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PhotoStock.Models;
+using System;
 using System.Collections.Generic;
 
 namespace PhotoStock.Data.Models
@@ -22,11 +23,5 @@ namespace PhotoStock.Data.Models
             return RatingValues;
         }
         
-    }
-    public class RatingValue : BaseModel
-    {
-        public int Value { get; set; }
-        public Guid RatingId { get; set; }
-        public virtual Rating Rating { get; set; }
     }
 }

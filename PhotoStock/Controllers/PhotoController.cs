@@ -33,6 +33,8 @@ namespace PhotoStock.Controllers
         {
             if(modelParameters.PageNumber < 1 || modelParameters.PageSize < 1)
             {
+                _logger.LogError($"Failed to fetch page {modelParameters.PageNumber} with pagesize {modelParameters.PageSize}");
+
                 return BadRequest();
             }
             var photos = from p in _repositoryWrapper.PhotoRepository.GetAll(modelParameters)// Photos.GetAll(modelParameters)
